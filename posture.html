@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desk Timer App</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #4caf50; /* Set initial background color to green */
+            color: white;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+        }
+        #timer {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+        #buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        button {
+            font-size: 24px;
+        }
+        .stand {
+            background-color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="timer">--:--</div>
+    <div id="position">--</div>
+    <div id="buttons">
+        <button id="startStop">Start</button>
+        <button id="next">Next</button>
+    </div>
+</div>
+
+<audio id="chime">
+    <source src="chime.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<script>
+    let postureDuration = 1200;
+    let timer;
+    let timerRunning = false;
+    let timeInSeconds = postureDuration;
+    let isSitting = true;
+    const chimeSound = document.getElementById('chime');
+
+    function startTimer() {
+        timerRunning = true;
+        timer = setInterval(updateTimer, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timer);
+        timerRunning = false;
+    }
+
+    function playChime() {
+        chimeSound.play();
+    }
+
+    function onStartClicked() {
+        startTimer();
+        document.getElementById('startStop').textContent = 'Stop';
+    }
+
+    function onStopClicked() {
+        stopTimer();
+        document.getElementById('startStop').textContent = 'Start';
+    }
+
+    function showTimer() {
+        const minutes = Math.floor(timeInSeconds / 60);
+        let seconds = timeInSeconds % 60;
+        seconds = seconds < 10 ? `0${seconds}` : seconds;
+        document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+    }
+
+    function showPosture() {
+        document.getElementById('position').textContent = isSitting ? 'Sit' : 'Stand';
+        document.body.className = isSitting ? '' : 'stand'; // Remove class for sitting position
+    }
+
+    function updateTimer() {
+        showTimer();
+        timeInSeconds--;
+
+        if (timeInSeconds < 0) {
+            timeInSeconds = postureDuration;
+            isSitting = !isSitting;
+            showPosture();
+            playChime();
+        }
+    }
+
+    document.getElementById('startStop').addEventListener('click', function() {
+        if (timerRunning) {
+            onStopClicked();
+        } else {
+            onStartClicked();
+        }
+    });
+
+    document.getElementById('next').addEventListener('click', function() {
+        timeInSeconds = postureDuration; // Reset the timer to 20 minutes
+        isSitting = !isSitting;
+        document.getElementById('position').textContent = isSitting ? 'Sit' : 'Stand';
+        document.body.className = isSitting ? '' : 'stand';
+    });
+
+    onStartClicked();
+    showTimer();
+    showPosture();
+
+</script>
+</body>
+</html>
